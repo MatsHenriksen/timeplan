@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeplanssystem - Videregående skole</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a5490;
+            --secondary-color: #2e7d32;
+            --accent-color: #ff6b35;
+            --background-color: #f5f5f5;
+            --text-color: #212121;
+            --border-color: #e0e0e0;
+            --error-color: #d32f2f;
+            --success-color: #388e3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #134170;
+        }
+
+        button:focus {
+            outline: 3px solid #4a90e2;
+            outline-offset: 2px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26, 84, 144, 0.1);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #ffebee;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .schedule-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .schedule-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .schedule-item {
+            background-color: #e3f2fd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.25rem 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .schedule-item .subject {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .schedule-item .room {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .schedule-item:hover .delete-btn {
+            display: block;
+        }
+
+        .delete-btn:hover {
+            background-color: #b71c1c;
+        }
+
+        .edit-btn {
+            position: absolute;
+            top: 5px;
+            right: 60px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .schedule-item:hover .edit-btn {
+            display: block;
+        }
+
+        .edit-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 2rem;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #666;
+        }
+
+        .admin-controls {
+            background: #fff3e0;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .schedule-table {
+                font-size: 0.9rem;
+            }
+
+            .schedule-table th,
+            .schedule-table td {
+                padding: 0.5rem;
+            }
+
+            .modal-content {
+                margin: 20px;
+                padding: 1rem;
+            }
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main" class="skip-link">Hopp til hovedinnhold</a>
+    
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <h2>Logg inn</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Brukernavn</label>
+                <input type="text" id="username" name="username" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="password">Passord</label>
+                <input type="password" id="password" name="password" required aria-required="true">
+            </div>
+            <div class="error-message" id="loginError" role="alert"></div>
+            <button type="submit">Logg inn</button>
+        </form>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" style="display: none;">
+        <header>
+            <div class="container">
+                <h1>Timeplanssystem</h1>
+                <div class="user-info">
+                    <span id="userDisplay"></span>
+                    <button id="logoutBtn">Logg ut</button>
+                </div>
+            </div>
+        </header>
+
+        <main id="main" class="container">
+            <!-- Admin Controls for Teachers -->
+            <div id="adminControls" class="admin-controls" style="display: none;">
+                <h2>Administrer timeplan</h2>
+                <button id="addClassBtn">Legg til time</button>
+            </div>
+
+            <!-- Schedule Display -->
+            <div class="schedule-container">
+                <div class="view-controls">
+                    <select id="viewType">
+                        <option value="week">Ukevisning</option>
+                        <option value="day">Dagsvisning</option>
+                    </select>
+                    <select id="classFilter">
+                        <option value="">Alle klasser</option>
+                        <option value="1A">1A</option>
+                        <option value="1B">1B</option>
+                        <option value="2A">2A</option>
+                        <option value="2B">2B</option>
+                        <option value="3A">3A</option>
+                        <option value="3B">3B</option>
+                    </select>
+                </div>
+
+                <div id="scheduleDisplay">
+                    <table class="schedule-table" role="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tid</th>
+                                <th scope="col">Mandag</th>
+                                <th scope="col">Tirsdag</th>
+                                <th scope="col">Onsdag</th>
+                                <th scope="col">Torsdag</th>
+                                <th scope="col">Fredag</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
+                            <!-- Schedule content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Class Modal -->
+    <div id="addClassModal" class="modal" role="dialog" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModalBtn" aria-label="Lukk">&times;</button>
+            <h2 id="modalTitle">Legg til ny time</h2>
+            <form id="addClassForm">
+                <div class="form-group">
+                    <label for="classSelect">Klasse</label>
+                    <select id="classSelect" required>
+                        <option value="">Velg klasse</option>
+                        <option value="1A">1A</option>
+                        <option value="1B">1B</option>
+                        <option value="2A">2A</option>
+                        <option value="2B">2B</option>
+                        <option value="3A">3A</option>
+                        <option value="3B">3B</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="daySelect">Ukedag</label>
+                    <select id="daySelect" required>
+                        <option value="">Velg dag</option>
+                        <option value="monday">Mandag</option>
+                        <option value="tuesday">Tirsdag</option>
+                        <option value="wednesday">Onsdag</option>
+                        <option value="thursday">Torsdag</option>
+                        <option value="friday">Fredag</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startTime">Starttid</label>
+                    <input type="time" id="startTime" required min="08:00" max="16:00">
+                </div>
+                <div class="form-group">
+                    <label for="endTime">Sluttid</label>
+                    <input type="time" id="endTime" required min="08:00" max="17:00">
+                </div>
+                <div class="form-group">
+                    <label for="subject">Fag</label>
+                    <select id="subject" required>
+                        <option value="">Velg fag</option>
+                        <option value="Matematikk">Matematikk</option>
+                        <option value="Norsk">Norsk</option>
+                        <option value="Engelsk">Engelsk</option>
+                        <option value="Naturfag">Naturfag</option>
+                        <option value="Samfunnsfag">Samfunnsfag</option>
+                        <option value="Gym">Gym</option>
+                        <option value="Historie">Historie</option>
+                        <option value="Geografi">Geografi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="room">Rom</label>
+                    <input type="text" id="room" required placeholder="f.eks. A201">
+                </div>
+                <div class="error-message" id="addClassError" role="alert"></div>
+                <div class="success-message" id="addClassSuccess" role="alert"></div>
+                <button type="submit">Legg til time</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Class Modal -->
+    <div id="editClassModal" class="modal" role="dialog" aria-labelledby="editModalTitle">
+        <div class="modal-content">
+            <button class="close-modal" id="closeEditModalBtn" aria-label="Lukk">&times;</button>
+            <h2 id="editModalTitle">Rediger time</h2>
+            <form id="editClassForm">
+                <input type="hidden" id="editClassId">
+                <div class="form-group">
+                    <label for="editClassSelect">Klasse</label>
+                    <select id="editClassSelect" required>
+                        <option value="">Velg klasse</option>
+                        <option value="1A">1A</option>
+                        <option value="1B">1B</option>
+                        <option value="2A">2A</option>
+                        <option value="2B">2B</option>
+                        <option value="3A">3A</option>
+                        <option value="3B">3B</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editDaySelect">Ukedag</label>
+                    <select id="editDaySelect" required>
+                        <option value="">Velg dag</option>
+                        <option value="monday">Mandag</option>
+                        <option value="tuesday">Tirsdag</option>
+                        <option value="wednesday">Onsdag</option>
+                        <option value="thursday">Torsdag</option>
+                        <option value="friday">Fredag</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editStartTime">Starttid</label>
+                    <input type="time" id="editStartTime" required min="08:00" max="16:00">
+                </div>
+                <div class="form-group">
+                    <label for="editEndTime">Sluttid</label>
+                    <input type="time" id="editEndTime" required min="08:00" max="17:00">
+                </div>
+                <div class="form-group">
+                    <label for="editSubject">Fag</label>
+                    <select id="editSubject" required>
+                        <option value="">Velg fag</option>
+                        <option value="Matematikk">Matematikk</option>
+                        <option value="Norsk">Norsk</option>
+                        <option value="Engelsk">Engelsk</option>
+                        <option value="Naturfag">Naturfag</option>
+                        <option value="Samfunnsfag">Samfunnsfag</option>
+                        <option value="Gym">Gym</option>
+                        <option value="Historie">Historie</option>
+                        <option value="Geografi">Geografi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editRoom">Rom</label>
+                    <input type="text" id="editRoom" required placeholder="f.eks. A201">
+                </div>
+                <div class="error-message" id="editClassError" role="alert"></div>
+                <div class="success-message" id="editClassSuccess" role="alert"></div>
+                <button type="submit">Oppdater time</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentUser = null;
+        let scheduleData = [];
+
+        // Mock database - would be replaced with actual API calls
+        const mockUsers = [
+            { username: 'lærer1', password: 'hash_passord1', role: 'lærer', class: null },
+            { username: 'elev1', password: 'hash_passord2', role: 'elev', class: '1A' },
+            { username: 'elev2', password: 'hash_passord3', role: 'elev', class: '2B' }
+        ];
+
+        const mockSchedule = [
+            {
+                id: 1,
+                teacher: 'Kari Nordmann',
+                class: '1A',
+                startTime: '08:15',
+                endTime: '09:00',
+                monday: true,
+                tuesday: false,
+                wednesday: true,
+                thursday: false,
+                friday: true,
+                subject: 'Matematikk',
+                room: 'A201'
+            },
+            {
+                id: 2,
+                teacher: 'Per Hansen',
+                class: '1A',
+                startTime: '09:15',
+                endTime: '10:00',
+                monday: true,
+                tuesday: true,
+                wednesday: false,
+                thursday: true,
+                friday: false,
+                subject: 'Norsk',
+                room: 'B102'
+            },
+            {
+                id: 3,
+                teacher: 'Anne Olsen',
+                class: '2B',
+                startTime: '10:15',
+                endTime: '11:00',
+                monday: false,
+                tuesday: true,
+                wednesday: true,
+                thursday: true,
+                friday: true,
+                subject: 'Engelsk',
+                room: 'C203'
+            }
+        ];
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainApp();
+            }
+
+            // Setup form handlers
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('addClassForm').addEventListener('submit', handleAddClass);
+            document.getElementById('editClassForm').addEventListener('submit', handleEditClass);
+            
+            // Setup button event listeners
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+            
+            const addClassBtn = document.getElementById('addClassBtn');
+            if (addClassBtn) {
+                addClassBtn.addEventListener('click', showAddClassModal);
+            }
+            
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeModal);
+            }
+            
+            const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+            if (closeEditModalBtn) {
+                closeEditModalBtn.addEventListener('click', closeEditModal);
+            }
+            
+            // Setup select change listeners
+            const viewType = document.getElementById('viewType');
+            if (viewType) {
+                viewType.addEventListener('change', changeView);
+            }
+            
+            const classFilter = document.getElementById('classFilter');
+            if (classFilter) {
+                classFilter.addEventListener('change', filterByClass);
+            }
+        });
+
+        // Login Handler
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Make API call to backend
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        brukernavn: username,
+                        passord: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store token and user info
+                    sessionStorage.setItem('token', data.token);
+                    currentUser = data.user;
+                    currentUser.username = data.user.brukernavn;
+                    currentUser.role = data.user.rolle;
+                    currentUser.class = data.user.klasse;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showMainApp();
+                } else {
+                    showError('loginError', data.error || 'Ugyldig brukernavn eller passord');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('loginError', 'Kunne ikke koble til serveren. Sjekk at backend kjører.');
+            }
+        }
+
+        // Show Main Application
+        function showMainApp() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            // Update user display
+            document.getElementById('userDisplay').textContent = 
+                `Innlogget som: ${currentUser.username} (${currentUser.role})`;
+            
+            // Show admin controls for teachers
+            if (currentUser.role === 'lærer') {
+                document.getElementById('adminControls').style.display = 'block';
+            }
+
+            // If student, filter by their class
+            if (currentUser.role === 'elev' && currentUser.class) {
+                document.getElementById('classFilter').value = currentUser.class;
+            }
+
+            // Load schedule
+            loadSchedule();
+        }
+
+        // Load Schedule
+        async function loadSchedule() {
+            const startTime = performance.now();
+            
+            try {
+                const token = sessionStorage.getItem('token');
+                const classFilter = document.getElementById('classFilter').value;
+                
+                let url = '/api/schedule';
+                if (classFilter) {
+                    url += `?klasse=${classFilter}`;
+                }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to load schedule');
+                    return;
+                }
+
+                const scheduleData = await response.json();
+                displaySchedule(scheduleData);
+                
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+                // Fall back to mock data if API fails
+                displayMockSchedule();
+            }
+
+            // Check load time
+            const endTime = performance.now();
+            const loadTime = endTime - startTime;
+            if (loadTime > 2000) {
+                console.warn(`Schedule load time exceeded 2 seconds: ${loadTime}ms`);
+            }
+        }
+
+        // Display schedule from API data
+        function displaySchedule(scheduleData) {
+            const timeSlots = [
+                '08:15 - 09:00',
+                '09:15 - 10:00',
+                '10:15 - 11:00',
+                '11:15 - 12:00',
+                '12:45 - 13:30',
+                '13:45 - 14:30',
+                '14:45 - 15:30'
+            ];
+
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            
+            let scheduleHTML = '';
+
+            timeSlots.forEach(slot => {
+                scheduleHTML += '<tr>';
+                scheduleHTML += `<td>${slot}</td>`;
+                
+                days.forEach(day => {
+                    const classesInSlot = scheduleData.filter(item => {
+                        const itemTime = `${item.startTime.slice(0,5)} - ${item.endTime.slice(0,5)}`;
+                        return itemTime === slot && item[day];
+                    });
+
+                    if (classesInSlot.length > 0) {
+                        scheduleHTML += '<td>';
+                        classesInSlot.forEach(cls => {
+                            const isTeacher = currentUser.rolle === 'lærer';
+                            scheduleHTML += `
+                                <div class="schedule-item" 
+                                     data-id="${cls.id}"
+                                     data-subject="${cls.subject}"
+                                     data-room="${cls.room}"
+                                     data-teacher="${cls.teacher}"
+                                     role="button"
+                                     tabindex="0"
+                                     aria-label="${cls.subject} i rom ${cls.room} med ${cls.teacher}">
+                                    <div class="subject">${cls.subject}</div>
+                                    <div class="room">Rom: ${cls.room}</div>
+                                    ${isTeacher ? `
+                                        <button class="edit-btn" data-id="${cls.id}" aria-label="Rediger time">Rediger</button>
+                                        <button class="delete-btn" data-id="${cls.id}" aria-label="Slett time">Slett</button>
+                                    ` : ''}
+                                </div>
+                            `;
+                        });
+                        scheduleHTML += '</td>';
+                    } else {
+                        scheduleHTML += '<td>-</td>';
+                    }
+                });
+                
+                scheduleHTML += '</tr>';
+            });
+
+            document.getElementById('scheduleBody').innerHTML = scheduleHTML;
+            
+            // Add click handlers to schedule items
+            document.querySelectorAll('.schedule-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Don't show details if clicking on delete/edit button
+                    if (e.target.classList.contains('delete-btn') || e.target.classList.contains('edit-btn')) {
+                        return;
+                    }
+                    const subject = this.getAttribute('data-subject');
+                    const room = this.getAttribute('data-room');
+                    const teacher = this.getAttribute('data-teacher');
+                    showClassDetails(subject, room, teacher);
+                });
+            });
+
+            // Add delete handlers
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    deleteClass(id);
+                });
+            });
+
+            // Add edit handlers
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.getAttribute('data-id');
+                    editClass(id);
+                });
+            });
+        }
+
+        // Display mock schedule as fallback
+        function displayMockSchedule() {
+            
+            // Filter schedule based on selected class
+            const classFilter = document.getElementById('classFilter').value;
+            let filteredSchedule = mockSchedule;
+            
+            if (classFilter) {
+                filteredSchedule = mockSchedule.filter(item => item.class === classFilter);
+            }
+
+            // Generate time slots
+            const timeSlots = [
+                '08:15 - 09:00',
+                '09:15 - 10:00',
+                '10:15 - 11:00',
+                '11:15 - 12:00',
+                '12:45 - 13:30',
+                '13:45 - 14:30',
+                '14:45 - 15:30'
+            ];
+
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            const dayNames = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag'];
+
+            let scheduleHTML = '';
+
+            timeSlots.forEach(slot => {
+                scheduleHTML += '<tr>';
+                scheduleHTML += `<td>${slot}</td>`;
+                
+                days.forEach(day => {
+                    const classesInSlot = filteredSchedule.filter(item => {
+                        const timeMatch = `${item.startTime} - ${item.endTime}` === slot;
+                        return timeMatch && item[day];
+                    });
+
+                    if (classesInSlot.length > 0) {
+                        scheduleHTML += '<td>';
+                        classesInSlot.forEach(cls => {
+                            scheduleHTML += `
+                                <div class="schedule-item" 
+                                     data-subject="${cls.subject}"
+                                     data-room="${cls.room}"
+                                     data-teacher="${cls.teacher}"
+                                     role="button"
+                                     tabindex="0"
+                                     aria-label="${cls.subject} i rom ${cls.room} med ${cls.teacher}">
+                                    <div class="subject">${cls.subject}</div>
+                                    <div class="room">Rom: ${cls.room}</div>
+                                </div>
+                            `;
+                        });
+                        scheduleHTML += '</td>';
+                    } else {
+                        scheduleHTML += '<td>-</td>';
+                    }
+                });
+                
+                scheduleHTML += '</tr>';
+            });
+
+            document.getElementById('scheduleBody').innerHTML = scheduleHTML;
+            
+            // Add click handlers to schedule items
+            document.querySelectorAll('.schedule-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const subject = this.getAttribute('data-subject');
+                    const room = this.getAttribute('data-room');
+                    const teacher = this.getAttribute('data-teacher');
+                    showClassDetails(subject, room, teacher);
+                });
+            });
+
+            // Check load time
+            const endTime = performance.now();
+            const loadTime = endTime - startTime;
+            if (loadTime > 2000) {
+                console.warn(`Schedule load time exceeded 2 seconds: ${loadTime}ms`);
+            }
+        }
+
+        // Show Add Class Modal
+        function showAddClassModal() {
+            document.getElementById('addClassModal').style.display = 'block';
+            document.getElementById('classSelect').focus();
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('addClassModal').style.display = 'none';
+            clearForm();
+        }
+
+        // Handle Add Class
+        async function handleAddClass(e) {
+            e.preventDefault();
+            
+            const newClass = {
+                klasse: document.getElementById('classSelect').value,
+                tidspunkt_start: document.getElementById('startTime').value,
+                tidspunkt_slutt: document.getElementById('endTime').value,
+                mandag: document.getElementById('daySelect').value === 'monday',
+                tirsdag: document.getElementById('daySelect').value === 'tuesday',
+                onsdag: document.getElementById('daySelect').value === 'wednesday',
+                torsdag: document.getElementById('daySelect').value === 'thursday',
+                fredag: document.getElementById('daySelect').value === 'friday',
+                fag: document.getElementById('subject').value,
+                rom: document.getElementById('room').value
+            };
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch('/api/schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(newClass)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('addClassSuccess', 'Time lagt til successfully!');
+                    setTimeout(() => {
+                        closeModal();
+                        loadSchedule();
+                    }, 1500);
+                } else {
+                    showError('addClassError', data.error || 'Kunne ikke legge til time');
+                }
+            } catch (error) {
+                console.error('Error adding class:', error);
+                showError('addClassError', 'Kunne ikke koble til serveren');
+            }
+        }
+
+        // Check Time Conflict
+        function checkTimeConflict(newClass) {
+            const dayMap = {
+                'monday': 'monday',
+                'tuesday': 'tuesday',
+                'wednesday': 'wednesday',
+                'thursday': 'thursday',
+                'friday': 'friday'
+            };
+
+            return mockSchedule.some(item => {
+                if (item.class !== newClass.class || !item[dayMap[newClass.day]]) {
+                    return false;
+                }
+
+                const existingStart = timeToMinutes(item.startTime);
+                const existingEnd = timeToMinutes(item.endTime);
+                const newStart = timeToMinutes(newClass.startTime);
+                const newEnd = timeToMinutes(newClass.endTime);
+
+                return (newStart < existingEnd && newEnd > existingStart);
+            });
+        }
+
+        // Convert time to minutes
+        function timeToMinutes(time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        // Show Class Details
+        function showClassDetails(subject, room, teacher) {
+            alert(`Fag: ${subject}\nRom: ${room}\nLærer: ${teacher}`);
+        }
+
+        // Change View
+        function changeView() {
+            const viewType = document.getElementById('viewType').value;
+            if (viewType === 'day') {
+                showDayView();
+            } else {
+                loadSchedule();
+            }
+        }
+
+        // Show Day View
+        function showDayView() {
+            const today = new Date().getDay();
+            const dayMap = ['', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', ''];
+            const currentDay = dayMap[today] || 'monday';
+            
+            // Implementation of day view would go here
+            // For brevity, we're keeping the week view
+            loadSchedule();
+        }
+
+        // Filter by Class
+        function filterByClass() {
+            loadSchedule();
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginForm').reset();
+        }
+
+        // Show Error Message
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show Success Message
+        function showSuccess(elementId, message) {
+            const successElement = document.getElementById(elementId);
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 3000);
+        }
+
+        // Clear Form
+        function clearForm() {
+            document.getElementById('addClassForm').reset();
+            document.getElementById('addClassError').style.display = 'none';
+            document.getElementById('addClassSuccess').style.display = 'none';
+        }
+
+        // Delete Class
+        async function deleteClass(classId) {
+            if (!confirm('Er du sikker på at du vil slette denne timen?')) {
+                return;
+            }
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`/api/schedule/${classId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showSuccess('addClassSuccess', 'Time slettet successfully!');
+                    loadSchedule(); // Reload schedule
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Kunne ikke slette timen');
+                }
+            } catch (error) {
+                console.error('Error deleting class:', error);
+                alert('Kunne ikke koble til serveren');
+            }
+        }
+
+        // Edit Class - Open modal with current values
+        async function editClass(classId) {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch('/api/schedule', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    alert('Kunne ikke hente timeplandata');
+                    return;
+                }
+
+                const scheduleData = await response.json();
+                const classToEdit = scheduleData.find(item => item.id == classId);
+
+                if (!classToEdit) {
+                    alert('Fant ikke timen som skal redigeres');
+                    return;
+                }
+
+                // Fill the edit form with current values
+                document.getElementById('editClassId').value = classToEdit.id;
+                document.getElementById('editClassSelect').value = classToEdit.class;
+                document.getElementById('editSubject').value = classToEdit.subject;
+                document.getElementById('editRoom').value = classToEdit.room;
+                document.getElementById('editStartTime').value = classToEdit.startTime.slice(0,5);
+                document.getElementById('editEndTime').value = classToEdit.endTime.slice(0,5);
+                
+                // Determine which day is selected
+                if (classToEdit.monday) document.getElementById('editDaySelect').value = 'monday';
+                else if (classToEdit.tuesday) document.getElementById('editDaySelect').value = 'tuesday';
+                else if (classToEdit.wednesday) document.getElementById('editDaySelect').value = 'wednesday';
+                else if (classToEdit.thursday) document.getElementById('editDaySelect').value = 'thursday';
+                else if (classToEdit.friday) document.getElementById('editDaySelect').value = 'friday';
+
+                // Show the edit modal
+                document.getElementById('editClassModal').style.display = 'block';
+                document.getElementById('editClassSelect').focus();
+            } catch (error) {
+                console.error('Error loading class for edit:', error);
+                alert('Kunne ikke laste inn time for redigering');
+            }
+        }
+
+        // Handle Edit Class Form Submission
+        async function handleEditClass(e) {
+            e.preventDefault();
+            
+            const classId = document.getElementById('editClassId').value;
+            const updatedClass = {
+                klasse: document.getElementById('editClassSelect').value,
+                tidspunkt_start: document.getElementById('editStartTime').value,
+                tidspunkt_slutt: document.getElementById('editEndTime').value,
+                mandag: document.getElementById('editDaySelect').value === 'monday',
+                tirsdag: document.getElementById('editDaySelect').value === 'tuesday',
+                onsdag: document.getElementById('editDaySelect').value === 'wednesday',
+                torsdag: document.getElementById('editDaySelect').value === 'thursday',
+                fredag: document.getElementById('editDaySelect').value === 'friday',
+                fag: document.getElementById('editSubject').value,
+                rom: document.getElementById('editRoom').value
+            };
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`/api/schedule/${classId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedClass)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('editClassSuccess', 'Time oppdatert successfully!');
+                    setTimeout(() => {
+                        closeEditModal();
+                        loadSchedule();
+                    }, 1500);
+                } else {
+                    showError('editClassError', data.error || 'Kunne ikke oppdatere time');
+                }
+            } catch (error) {
+                console.error('Error updating class:', error);
+                showError('editClassError', 'Kunne ikke koble til serveren');
+            }
+        }
+
+        // Close Edit Modal
+        function closeEditModal() {
+            document.getElementById('editClassModal').style.display = 'none';
+            document.getElementById('editClassForm').reset();
+            document.getElementById('editClassError').style.display = 'none';
+            document.getElementById('editClassSuccess').style.display = 'none';
+        }
+
+        // Keyboard Navigation Support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const addModal = document.getElementById('addClassModal');
+                const editModal = document.getElementById('editClassModal');
+                if (addModal.style.display === 'block') {
+                    closeModal();
+                }
+                if (editModal.style.display === 'block') {
+                    closeEditModal();
+                }
+            }
+        });
+
+        // Add keyboard support for schedule items
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('schedule-item')) {
+                e.target.click();
+            }
+        });
+    </script>
+</body>
+</html>
